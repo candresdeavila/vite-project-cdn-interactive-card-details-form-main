@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Landing con Tarjeta</title>
+  <!-- Tailwind por CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="relative min-h-screen bg-white">
+  <!-- Fondo general -->
+  <div aria-hidden="true"
+    class="pointer-events-none absolute inset-x-0 top-0 h-[220px] md:inset-y-0 md:left-0 md:right-auto md:h-full md:w-[30vw]">
+    <picture>
+      <!-- Desktop -->
+      <source srcset="/bg-main-desktop.png" media="(min-width: 768px)" />
+      <!-- Mobile -->
+      <img src="/bg-main-mobile.png" alt="" class="w-full h-full object-cover" />
+    </picture>
+  </div>
+  <!-- Contenido -->
+  <main class="relative max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 p-6 min-h-screen">
+    <section id="cards-section" class="flex items-center justify-center"></section>
+    <section id="form-section" class="flex items-center justify-center"></section>
+  </main>
+  <!-- Conecta main.js -->
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
