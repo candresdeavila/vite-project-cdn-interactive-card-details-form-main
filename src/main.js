@@ -1,7 +1,7 @@
 import cardFront from './assets/bg-card-front.png';
 import cardBack from './assets/bg-card-back.png';
 
-// Renderizamos las dos tarjetas
+//1. Renderizamos las dos tarjetas
 document.getElementById('cards-section').innerHTML = `
   <div class="relative w-full h-[300px] md:h-[500px] flex items-center justify-center">
     
@@ -39,15 +39,16 @@ document.getElementById('cards-section').innerHTML = `
 </div>
 `;
 
-// Renderizamos el formulario en form-section
+//2. Renderizamos el formulario en form-section
 document.getElementById('form-section').innerHTML = `
-  <form id="card-form" class="w-full max-w-sm space-y-6">
+  <form id="card-form" class="w-full max-w-sm space-y-6" novalidate>
     <!-- Nombre del titular -->
     <div>
       <label for="card-name" class="block text-sm font-medium text-gray-700">Cardholder Name</label>
       <input type="text" id="card-name" name="cardholder" 
         placeholder="e.g. Jane Appleseed"
-        class="mt-1 block w-full h-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+        class="mt-1 block w-full h-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" maxlength="50" required/>
+         <p id="err-name" class="text-red-500 text-xs mt-1 hidden"></p>
     </div>
 
     <!-- Número de tarjeta -->
@@ -56,7 +57,8 @@ document.getElementById('form-section').innerHTML = `
       <input type="text" id="card-number" name="card-number" 
         placeholder="e.g. 1234 5678 9123 0000"
         maxlength="19"
-        class="mt-1 block w-full h-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+        class="mt-1 block w-full h-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required/>
+        <p id="err-number" class="text-red-500 text-xs mt-1 hidden"></p>
     </div>
 
     <!-- Fecha y CVC -->
@@ -65,27 +67,37 @@ document.getElementById('form-section').innerHTML = `
         <label for="exp-date" class="block text-sm font-medium text-gray-700">Exp. Date (MM/YY)</label>
         <div class="flex gap-2">
           <input type="text" id="card-exp-month" name="exp-month" maxlength="2" placeholder="MM"
-            class="mt-1 block w-full h-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+            class="mt-1 block w-full h-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required/>
           <input type="text" id="card-exp-year" name="exp-year" maxlength="2" placeholder="YY"
-            class="mt-1 block w-full h-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+            class="mt-1 block w-full h-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required/>
+            <p id="err-expiry" class="text-red-500 text-xs mt-1 hidden"></p>
         </div>
       </div>
       <div>
-        <label for="card-cvc" class="block text-sm font-medium text-gray-700">CVC</label>
-        <input type="text" id="card-cvc" name="cvc" maxlength="3" placeholder="e.g. 123"
-          class="mt-1 block w-full h-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+        <label for="card-cvc-display" class="block text-sm font-medium text-gray-700">CVC</label>
+        <input type="text" id="card-cvc-display" name="cvc" maxlength="3" placeholder="e.g. 123"
+          class="mt-1 block w-full h-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required/>
+          <p id="err-cvc" class="text-red-500 text-xs mt-1 hidden"></p>
       </div>
     </div>
 
     <!-- Botón -->
-    <button type="submit" 
+    <button id="continue-btn" type="submit" 
       class="w-full py-2 px-4 bg-purple-950 text-white rounded-md shadow hover:bg-purple-800 focus:outline-none">
       Confirm
     </button>
   </form>
+  <!-- Mensaje de éxito oculto por defecto -->
+<section id="success-section" class="hidden">
+  <img src="./public/icon-complete.svg" alt="Success" />
+  <h2>THANK YOU!</h2>
+  <p>We've added your card details</p>
+  <button id="continue-btn">Continue</button>
+</section>
+
 `;
 
-
+// 3. Sincronizar inputs con tarjeta
 // --- Sincronización de inputs con tarjeta ---
 const numberInput = document.getElementById("card-number");
 const nameInput = document.getElementById("card-name");
@@ -121,4 +133,62 @@ yearInput.addEventListener("input", updateExpiry);
 // CVC
 cvcInput.addEventListener("input", (e) => {
   cvcDisplay.textContent = e.target.value || "000";
+});
+
+
+// 4. Validación del formulario
+// === VALIDACIÓN SOLO DEL NOMBRE ===
+const form = document.getElementById("card-form");
+const errName = document.getElementById("err-name");
+
+form.addEventListener("submit", (e) => {
+  e.preventDefault(); // Evita que recargue
+
+  // Expresión: solo letras y espacios
+  const nameRegex = /^[a-zA-Z\s]+$/;
+
+  if (
+    nameInput.value.trim() === "" ||              // vacío
+    !nameRegex.test(nameInput.value)              // contiene números u otros símbolos
+  ) {
+    errName.textContent = "Please enter a valid name (letters only)";
+    errName.classList.remove("hidden");
+  } else {
+    errName.textContent = "";
+    errName.classList.add("hidden");
+    console.log("✅ Nombre válido"); // prueba en consola
+  }
+});
+
+
+
+// === VALIDACIÓN DEL NÚMERO DE TARJETA ===
+const errNumber = document.getElementById("err-number");
+
+// Dar formato automáticamente mientras escribe
+numberInput.addEventListener("input", (e) => {
+  // quitar espacios previos
+  let value = e.target.value.replace(/\s+/g, "");
+  // permitir solo números
+  value = value.replace(/\D/g, "");
+  // dividir en grupos de 4
+  const formattedValue = value.match(/.{1,4}/g)?.join(" ") || "";
+  e.target.value = formattedValue;
+});
+
+// Validar en submit
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const rawValue = numberInput.value.replace(/\s+/g, ""); // quitar espacios
+  const cardRegex = /^\d{16}$/; // exactamente 16 números
+
+  if (!cardRegex.test(rawValue)) {
+    errNumber.textContent = "Card number must be 16 digits";
+    errNumber.classList.remove("hidden");
+  } else {
+    errNumber.textContent = "";
+    errNumber.classList.add("hidden");
+    console.log("✅ Número válido");
+  }
 });
