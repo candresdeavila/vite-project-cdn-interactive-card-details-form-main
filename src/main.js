@@ -47,7 +47,7 @@ document.getElementById('form-section').innerHTML = `
       <label for="card-name" class="block text-sm font-medium text-gray-700">Cardholder Name</label>
       <input type="text" id="card-name" name="cardholder" 
         placeholder="e.g. Jane Appleseed"
-        class="mt-1 block w-full h-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" maxlength="50" required/>
+        class="mt-1 block w-full h-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" maxlength="35" required/>
          <p id="err-name" class="text-red-500 text-xs mt-1 hidden"></p>
     </div>
 
@@ -68,10 +68,11 @@ document.getElementById('form-section').innerHTML = `
         <div class="flex gap-2">
           <input type="text" id="card-exp-month" name="exp-month" maxlength="2" placeholder="MM"
             class="mt-1 block w-full h-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required/>
+            
           <input type="text" id="card-exp-year" name="exp-year" maxlength="2" placeholder="YY"
             class="mt-1 block w-full h-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required/>
-            <p id="err-expiry" class="text-red-500 text-xs mt-1 hidden"></p>
         </div>
+        <p id="err-expiry" class="text-red-500 text-xs mt-1 hidden"></p>
       </div>
       <div>
         <label for="card-cvc-display" class="block text-sm font-medium text-gray-700">CVC</label>
@@ -191,4 +192,96 @@ form.addEventListener("submit", (e) => {
     errNumber.classList.add("hidden");
     console.log("✅ Número válido");
   }
+});
+
+
+// === VALIDACIÓN DE FECHA DE EXPIRACIÓN ===
+const errExpiry = document.getElementById("err-expiry");
+const MIN_YEAR = 25;
+const MAX_YEAR = 40;
+
+// Helpers para mostrar/ocultar error
+function showExpiryError(msg) {
+  errExpiry.textContent = msg;
+  errExpiry.classList.remove("hidden");
+}
+function clearExpiryError() {
+  errExpiry.textContent = "";
+  errExpiry.classList.add("hidden");
+}
+
+// Formateo/limitación mientras se escribe (MM)
+monthInput.addEventListener("input", (e) => {
+  let v = e.target.value.replace(/\D/g, "").slice(0, 2);
+
+  // Si ponen un dígito > 1 como primer dígito, lo convertimos a 0X (3 -> 03)
+  if (v.length === 1 && parseInt(v, 10) > 1) v = "0" + v;
+
+  if (v.length === 2) {
+    let n = parseInt(v, 10);
+    if (n === 0) v = "01";
+    else if (n > 12) v = "12";
+  }
+
+  e.target.value = v;
+  updateExpiry();
+
+  if (monthInput.value && yearInput.value) clearExpiryError();
+});
+
+// Formateo/limitación mientras se escribe (YY)
+yearInput.addEventListener("input", (e) => {
+  let v = e.target.value.replace(/\D/g, "").slice(0, 2);
+
+  if (v.length === 2) {
+    let n = parseInt(v, 10);
+    if (n < MIN_YEAR) v = String(MIN_YEAR);   // 24 -> 25
+    else if (n > MAX_YEAR) v = String(MAX_YEAR); // 41 -> 40
+  }
+
+  e.target.value = v;
+  updateExpiry();
+
+  if (monthInput.value && yearInput.value) clearExpiryError();
+});
+
+// Si salen del campo sin escribir → "Can't be blank" (se muestra debajo de MM)
+[monthInput, yearInput].forEach((el) =>
+  el.addEventListener("blur", () => {
+    if (!monthInput.value.trim() || !yearInput.value.trim()) {
+      showExpiryError("Can't be blank");
+    }
+  })
+);
+
+// Validación en submit (solo MM/YY por ahora)
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const m = monthInput.value.trim();
+  const y = yearInput.value.trim();
+
+  // Vacíos
+  if (!m || !y) {
+    showExpiryError("Can't be blank");
+    return;
+  }
+
+  // Rango y formato
+  const mm = parseInt(m, 10);
+  const yy = parseInt(y, 10);
+
+  if (isNaN(mm) || mm < 1 || mm > 12) {
+    showExpiryError("Invalid month");
+    return;
+  }
+  if (isNaN(yy) || yy < MIN_YEAR || yy > MAX_YEAR) {
+    showExpiryError("Invalid year");
+    return;
+  }
+
+  // Ok
+  clearExpiryError();
+  console.log("✅ Expiry válido");
+  // Aquí todavía no mostramos el success; seguimos paso a paso
 });
