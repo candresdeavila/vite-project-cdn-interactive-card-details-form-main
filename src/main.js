@@ -89,11 +89,11 @@ document.getElementById('form-section').innerHTML = `
     </button>
   </form>
   <!-- Mensaje de éxito oculto por defecto -->
-<section id="success-section" class="hidden">
-  <img src="./public/icon-complete.svg" alt="Success" />
-  <h2>THANK YOU!</h2>
-  <p>We've added your card details</p>
-  <button id="continue-btn">Continue</button>
+<section id="success-section" class="hidden text-center space-y-4">
+  <img src="./public/icon-complete.svg" alt="Success" class="mx-auto w-16 h-16"/>
+  <h2 class="text-2xl uppercase">THANK YOU!</h2>
+  <p class="text-gray-500">We've added your card details</p>
+  <button id="success-continue-btn" class="bg-purple-800 text-white py-2 px-6 rounded-lg mt-4">Continue</button>
 </section>
 
 `;
@@ -104,7 +104,7 @@ const numberInput = document.getElementById("card-number");
 const nameInput = document.getElementById("card-name");
 const monthInput = document.getElementById("card-exp-month");
 const yearInput = document.getElementById("card-exp-year");
-const cvcInput = document.getElementById("card-cvc");
+const cvcInput = document.getElementById("card-cvc-display");
 
 // Elementos a actualizar en tarjeta
 const numberDisplay = document.getElementById("card-number-display");
@@ -137,151 +137,141 @@ cvcInput.addEventListener("input", (e) => {
 });
 
 
-// 4. Validación del formulario
-// === VALIDACIÓN SOLO DEL NOMBRE ===
-const form = document.getElementById("card-form");
-const errName = document.getElementById("err-name");
+// --- Validaciones ---
 
-form.addEventListener("submit", (e) => {
-  e.preventDefault(); // Evita que recargue
-
-  // Expresión: solo letras y espacios
-  const nameRegex = /^[a-zA-Z\s]+$/;
-
-  if (
-    nameInput.value.trim() === "" ||              // vacío
-    !nameRegex.test(nameInput.value)              // contiene números u otros símbolos
-  ) {
-    errName.textContent = "Please enter a valid name (letters only)";
+// NAME
+function validateName() {
+  const errName = document.getElementById("err-name");
+  if (!nameInput.value.trim()) {
+    errName.textContent = "Can't be blank";
     errName.classList.remove("hidden");
-  } else {
-    errName.textContent = "";
-    errName.classList.add("hidden");
-    console.log("✅ Nombre válido"); // prueba en consola
+    return false;
+  } else if (!/^[a-zA-Z\s]+$/.test(nameInput.value.trim())) {
+    errName.textContent = "Wrong format, letters only";
+    errName.classList.remove("hidden");
+    return false;
   }
-});
-
-
-
-// === VALIDACIÓN DEL NÚMERO DE TARJETA ===
-const errNumber = document.getElementById("err-number");
-
-// Dar formato automáticamente mientras escribe
-numberInput.addEventListener("input", (e) => {
-  // quitar espacios previos
-  let value = e.target.value.replace(/\s+/g, "");
-  // permitir solo números
-  value = value.replace(/\D/g, "");
-  // dividir en grupos de 4
-  const formattedValue = value.match(/.{1,4}/g)?.join(" ") || "";
-  e.target.value = formattedValue;
-});
-
-// Validar en submit
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
-
-  const rawValue = numberInput.value.replace(/\s+/g, ""); // quitar espacios
-  const cardRegex = /^\d{16}$/; // exactamente 16 números
-
-  if (!cardRegex.test(rawValue)) {
-    errNumber.textContent = "Card number must be 16 digits";
-    errNumber.classList.remove("hidden");
-  } else {
-    errNumber.textContent = "";
-    errNumber.classList.add("hidden");
-    console.log("✅ Número válido");
-  }
-});
-
-
-// === VALIDACIÓN DE FECHA DE EXPIRACIÓN ===
-const errExpiry = document.getElementById("err-expiry");
-const MIN_YEAR = 25;
-const MAX_YEAR = 40;
-
-// Helpers para mostrar/ocultar error
-function showExpiryError(msg) {
-  errExpiry.textContent = msg;
-  errExpiry.classList.remove("hidden");
+  errName.textContent = "";
+  errName.classList.add("hidden");
+  return true;
 }
-function clearExpiryError() {
+
+// NUMBER
+numberInput.addEventListener("input", (e) => {
+  let value = e.target.value.replace(/\D/g, "");
+  if (value.length > 16) value = value.slice(0, 16);
+  e.target.value = value.replace(/(\d{4})(?=\d)/g, "$1 ");
+  numberDisplay.textContent = e.target.value || "0000 0000 0000 0000";
+});
+
+function validateNumber() {
+  const errNumber = document.getElementById("err-number");
+  const cleanNumber = numberInput.value.replace(/\s/g, "");
+  if (!cleanNumber) {
+    errNumber.textContent = "Can't be blank";
+    errNumber.classList.remove("hidden");
+    return false;
+  } else if (!/^\d{16}$/.test(cleanNumber)) {
+    errNumber.textContent = "Wrong format, must be 16 digits";
+    errNumber.classList.remove("hidden");
+    return false;
+  }
+  errNumber.textContent = "";
+  errNumber.classList.add("hidden");
+  return true;
+}
+
+// DATE
+function validateDate() {
+  const errExpiry = document.getElementById("err-expiry");
+  const month = parseInt(monthInput.value, 10);
+  const year = parseInt(yearInput.value, 10);
+
+  if (!monthInput.value || !yearInput.value) {
+    errExpiry.textContent = "Can't be blank";
+    errExpiry.classList.remove("hidden");
+    return false;
+  }
+
+  if (month < 1 || month > 12) {
+    errExpiry.textContent = "Invalid month";
+    errExpiry.classList.remove("hidden");
+    return false;
+  }
+
+  if (year < 25 || year > 40) {
+    errExpiry.textContent = "Invalid year";
+    errExpiry.classList.remove("hidden");
+    return false;
+  }
+
   errExpiry.textContent = "";
   errExpiry.classList.add("hidden");
+  return true;
 }
 
-// Formateo/limitación mientras se escribe (MM)
-monthInput.addEventListener("input", (e) => {
-  let v = e.target.value.replace(/\D/g, "").slice(0, 2);
-
-  // Si ponen un dígito > 1 como primer dígito, lo convertimos a 0X (3 -> 03)
-  if (v.length === 1 && parseInt(v, 10) > 1) v = "0" + v;
-
-  if (v.length === 2) {
-    let n = parseInt(v, 10);
-    if (n === 0) v = "01";
-    else if (n > 12) v = "12";
+// CVC
+cvcInput.addEventListener("input", (e) => {
+  e.target.value = e.target.value.replace(/\D/g, "");
+  if (e.target.value.length > 3) {
+    e.target.value = e.target.value.slice(0, 3);
   }
-
-  e.target.value = v;
-  updateExpiry();
-
-  if (monthInput.value && yearInput.value) clearExpiryError();
+  cvcDisplay.textContent = e.target.value || "000";
 });
 
-// Formateo/limitación mientras se escribe (YY)
-yearInput.addEventListener("input", (e) => {
-  let v = e.target.value.replace(/\D/g, "").slice(0, 2);
-
-  if (v.length === 2) {
-    let n = parseInt(v, 10);
-    if (n < MIN_YEAR) v = String(MIN_YEAR);   // 24 -> 25
-    else if (n > MAX_YEAR) v = String(MAX_YEAR); // 41 -> 40
+function validateCVC() {
+  const errCvc = document.getElementById("err-cvc");
+  if (!cvcInput.value) {
+    errCvc.textContent = "Can't be blank";
+    errCvc.classList.remove("hidden");
+    return false;
+  } else if (!/^\d{3}$/.test(cvcInput.value)) {
+    errCvc.textContent = "CVC must be 3 digits";
+    errCvc.classList.remove("hidden");
+    return false;
   }
+  errCvc.textContent = "";
+  errCvc.classList.add("hidden");
+  return true;
+}
 
-  e.target.value = v;
-  updateExpiry();
 
-  if (monthInput.value && yearInput.value) clearExpiryError();
-});
-
-// Si salen del campo sin escribir → "Can't be blank" (se muestra debajo de MM)
-[monthInput, yearInput].forEach((el) =>
-  el.addEventListener("blur", () => {
-    if (!monthInput.value.trim() || !yearInput.value.trim()) {
-      showExpiryError("Can't be blank");
-    }
-  })
-);
-
-// Validación en submit (solo MM/YY por ahora)
+// Seleccionamos el formulario
+const form = document.getElementById("card-form");
+const successSection = document.getElementById("success-section");
+// --- Submit ---
 form.addEventListener("submit", (e) => {
   e.preventDefault();
 
-  const m = monthInput.value.trim();
-  const y = yearInput.value.trim();
+  const isNameValid = validateName();
+  const isNumberValid = validateNumber();
+  const isDateValid = validateDate();
+  const isCvcValid = validateCVC();
 
-  // Vacíos
-  if (!m || !y) {
-    showExpiryError("Can't be blank");
-    return;
+  if (isNameValid && isNumberValid && isDateValid && isCvcValid) {
+    form.classList.add("hidden"); // ocultar form
+    successSection.classList.remove("hidden"); // mostrar success
   }
-
-  // Rango y formato
-  const mm = parseInt(m, 10);
-  const yy = parseInt(y, 10);
-
-  if (isNaN(mm) || mm < 1 || mm > 12) {
-    showExpiryError("Invalid month");
-    return;
-  }
-  if (isNaN(yy) || yy < MIN_YEAR || yy > MAX_YEAR) {
-    showExpiryError("Invalid year");
-    return;
-  }
-
-  // Ok
-  clearExpiryError();
-  console.log("✅ Expiry válido");
-  // Aquí todavía no mostramos el success; seguimos paso a paso
 });
+
+
+// --- Botón Continue ---
+const continueBtn = document.getElementById("success-continue-btn");
+continueBtn.addEventListener("click", () => {
+  // Ocultamos el "thank you"
+  successSection.classList.add("hidden");
+
+  // Mostramos el form otra vez
+  form.classList.remove("hidden");
+
+  // Reiniciamos los valores del formulario
+  form.reset();
+
+  // Reiniciamos los displays de la tarjeta
+  nameDisplay.textContent = "Jane Appleseed";
+  numberDisplay.textContent = "0000 0000 0000 0000";
+  monthDisplay.textContent = "00";
+  yearDisplay.textContent = "00";
+  cvcDisplay.textContent = "000";
+});
+
