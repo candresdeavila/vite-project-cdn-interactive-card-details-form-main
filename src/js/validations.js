@@ -1,5 +1,3 @@
-// src/js/validations.js
-
 // helper: formatear número con espacios cada 4
 export function formatCardNumber(raw) {
   const digits = (raw || "").replace(/\D/g, "").slice(0, 16);

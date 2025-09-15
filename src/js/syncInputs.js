@@ -1,4 +1,3 @@
-// src/js/syncInputs.js
 import { formatCardNumber } from "./validations.js";
 
 export function setupSyncInputs() {

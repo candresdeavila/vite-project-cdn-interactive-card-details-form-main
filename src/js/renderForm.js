@@ -1,12 +1,16 @@
-// src/js/renderForm.js
+import formConfig from "../data/form.json"
+
+
+
 export function renderForm() {
+  const {inputsGroups, controllers} = formConfig;
   document.getElementById('form-section').innerHTML = `
     <form id="card-form" class="w-full max-w-sm space-y-6" novalidate>
       <!-- Nombre del titular -->
       <div>
-        <label for="card-name" class="block text-sm font-medium text-gray-700">Cardholder Name</label>
+        <label for="card-name" class="block text-sm font-medium text-gray-700">${inputsGroups.cardholder.label}</label>
         <input type="text" id="card-name" name="cardholder"
-          placeholder="e.g. Jane Appleseed"
+          placeholder="${inputsGroups.cardholder.placeholder}"
           class="mt-1 block w-full h-12 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           maxlength="26" required/>
         <p id="err-name" class="text-red-500 text-xs mt-1 hidden"></p>
@@ -46,7 +50,7 @@ export function renderForm() {
       <!-- Botón -->
       <button id="confirm-btn" type="submit"
         class="w-full py-2 px-4 bg-purple-950 text-white rounded-md shadow hover:bg-purple-800 focus:outline-none">
-        Confirm
+        ${controllers.submit.label}
       </button>
     </form>
 
