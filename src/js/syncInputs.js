@@ -1,5 +1,5 @@
-// src/js/syncInputs.js
 import { formatCardNumber } from "./validations.js";
+import cardDefaults from "../data/card-defaults.json";
 
 export function setupSyncInputs() {
   const numberInput = document.getElementById("card-number");
@@ -17,20 +17,20 @@ export function setupSyncInputs() {
     numberInput.addEventListener("input", (e) => {
       const formatted = formatCardNumber(e.target.value);
       e.target.value = formatted;
-      if (numberDisplay) numberDisplay.textContent = formatted || "0000 0000 0000 0000";
+      if (numberDisplay) numberDisplay.textContent = formatted || cardDefaults.display.number;
     });
   }
 
   if (nameInput) {
     nameInput.addEventListener("input", (e) => {
-      if (nameDisplay) nameDisplay.textContent = e.target.value || "Jane Appleseed";
+      if (nameDisplay) nameDisplay.textContent = e.target.value || cardDefaults.display.name;
     });
   }
 
   function updateExpiry() {
-    const mm = (monthInput?.value || "00");
-    const yy = (yearInput?.value || "00");
-    if (expiryDisplay) expiryDisplay.textContent = `${mm}/${yy}`;
+    const mm = (monthInput?.value || cardDefaults.display.expiry.month);
+    const yy = (yearInput?.value || cardDefaults.display.expiry.year);
+    if (expiryDisplay) expiryDisplay.textContent = `${mm}${cardDefaults.display.expiry.separator}${yy}`;
   }
   if (monthInput) monthInput.addEventListener("input", updateExpiry);
   if (yearInput) yearInput.addEventListener("input", updateExpiry);
@@ -40,7 +40,7 @@ export function setupSyncInputs() {
       let v = e.target.value.replace(/\D/g, "");
       if (v.length > 3) v = v.slice(0, 3);
       e.target.value = v;
-      if (cvcDisplay) cvcDisplay.textContent = v || "000";
+      if (cvcDisplay) cvcDisplay.textContent = v || cardDefaults.display.cvc;
     });
   }
 }

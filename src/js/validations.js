@@ -1,4 +1,4 @@
-// src/js/validations.js
+import validationRules from '../data/validation.json';
 
 // helper: formatear número con espacios cada 4
 export function formatCardNumber(raw) {
@@ -13,12 +13,12 @@ export function validateName() {
   const v = (nameInput?.value || "").trim();
 
   if (!v) {
-    errName.textContent = "Can't be blank";
+    errName.textContent = validationRules.rules.cardholder.messages.required;
     errName.classList.remove("hidden");
     return false;
   }
-  if (!/^[a-zA-Z\s]+$/.test(v)) {
-    errName.textContent = "Wrong format, letters only";
+  if (!new RegExp(validationRules.rules.cardholder.pattern).test(v)) {
+    errName.textContent = validationRules.rules.cardholder.messages.format;
     errName.classList.remove("hidden");
     return false;
   }
@@ -34,12 +34,12 @@ export function validateNumber() {
   const clean = (numberInput?.value || "").replace(/\s/g, "");
 
   if (!clean) {
-    errNumber.textContent = "Can't be blank";
+    errNumber.textContent = validationRules.rules.cardNumber.messages.required;
     errNumber.classList.remove("hidden");
     return false;
   }
-  if (!/^\d{16}$/.test(clean)) {
-    errNumber.textContent = "Wrong format, must be 16 digits";
+  if (!new RegExp(validationRules.rules.cardNumber.pattern).test(clean)) {
+    errNumber.textContent = validationRules.rules.cardNumber.messages.format;
     errNumber.classList.remove("hidden");
     return false;
   }
@@ -49,8 +49,6 @@ export function validateNumber() {
 }
 
 // DATE
-const MIN_YEAR = 25;
-const MAX_YEAR = 40;
 export function validateDate() {
   const monthInput = document.getElementById("card-exp-month");
   const yearInput = document.getElementById("card-exp-year");
@@ -62,17 +60,17 @@ export function validateDate() {
   const yy = parseInt(yyStr, 10);
 
   if (!mmStr || !yyStr) {
-    errExpiry.textContent = "Can't be blank";
+    errExpiry.textContent = validationRules.rules.expiry.messages.required;
     errExpiry.classList.remove("hidden");
     return false;
   }
-  if (Number.isNaN(mm) || mm < 1 || mm > 12) {
-    errExpiry.textContent = "Invalid month";
+  if (Number.isNaN(mm) || mm < validationRules.rules.expiry.month.min || mm > validationRules.rules.expiry.month.max) {
+    errExpiry.textContent = validationRules.rules.expiry.month.messages.invalid;
     errExpiry.classList.remove("hidden");
     return false;
   }
-  if (Number.isNaN(yy) || yy < MIN_YEAR || yy > MAX_YEAR) {
-    errExpiry.textContent = "Invalid year";
+  if (Number.isNaN(yy) || yy < validationRules.rules.expiry.year.min || yy > validationRules.rules.expiry.year.max) {
+    errExpiry.textContent = validationRules.rules.expiry.year.messages.invalid;
     errExpiry.classList.remove("hidden");
     return false;
   }
@@ -90,12 +88,12 @@ export function validateCVC() {
   value = value.replace(/\D/g, ""); // sólo dígitos
 
   if (!value) {
-    errCvc.textContent = "Can't be blank";
+    errCvc.textContent = validationRules.rules.cvc.messages.required;
     errCvc.classList.remove("hidden");
     return false;
   }
-  if (value.length !== 3) {
-    errCvc.textContent = "CVC must be 3 digits";
+  if (value.length !== validationRules.rules.cvc.length) {
+    errCvc.textContent = validationRules.rules.cvc.messages.format;
     errCvc.classList.remove("hidden");
     return false;
   }

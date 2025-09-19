@@ -1,4 +1,3 @@
-// src/js/formHandler.js
 import { validateName, validateNumber, validateDate, validateCVC } from "./validations.js";
 
 export function setupFormHandlers() {

@@ -1,0 +1,27 @@
+{
+  "success": {
+    "title": "THANK YOU!",
+    "message": "We've added your card details",
+    "continue": "Continue"
+  },
+  "form": {
+    "title": "Interactive Card Form",
+    "submit": "Confirm"
+  },
+  "card": {
+    "front": {
+      "altText": "Front of card"
+    },
+    "back": {
+      "altText": "Back of card"
+    },
+    "logo": {
+      "altText": "Card logo"
+    }
+  },
+  "accessibility": {
+    "mainBackground": "Main background pattern",
+    "cardSection": "Card preview section",
+    "formSection": "Card details form"
+  }
+}

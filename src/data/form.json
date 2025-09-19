@@ -1,0 +1,48 @@
+{
+  "inputsGroups": {
+    "cardholder":{
+      "label": "Cardholder Name",
+      "placeholder": "e.g. Jane Appleseed",
+      "error":{
+        "required": "Can't be blank",
+        "format": "text"
+      }
+    },
+    "card-number":{
+      "label": "Card Number",
+      "placeholder": "e.g. 1234 5678 9123 0000",
+      "error":{
+        "required": "Can't be blank"
+      }
+    },
+    "date":{
+      "label": "Exp. Date (MM/YY)",
+      "error":{
+        "required": "Can't be blank",
+        "format": "text"
+      },
+      "inputs":{
+        "exp-month": {"placeholder": "MM",
+        "required": "Can't be blank"
+      },
+        "exp-year": {"placeholder": "YY",
+        "required": "Can't be blank"
+      }
+      }
+    },
+    "cvc":{
+      "label": "CVC",
+      "placeholder": "e.g. 123",
+      "error":{
+        "required": "Can't be blank"
+      }
+    }
+  },
+  "controllers":{
+    "submit": {
+      "label": "Confirm"
+    }
+  }
+}
+
+
