@@ -1,5 +1,5 @@
 import formConfig from "../data/form.json"
-
+import messages from "../data/messages.json"
 
 
 export function renderForm() {
@@ -57,9 +57,9 @@ export function renderForm() {
     <!-- Mensaje de éxito oculto por defecto -->
     <section id="success-section" class="hidden text-center space-y-4">
       <img src="/icon-complete.svg" alt="Success" class="mx-auto w-16 h-16"/>
-      <h2 class="text-2xl uppercase">THANK YOU!</h2>
-      <p class="text-gray-500">We've added your card details</p>
-      <button id="success-continue-btn" class="bg-purple-800 text-white py-2 px-6 rounded-lg mt-4">Continue</button>
+      <h2 class="text-2xl uppercase">${messages.success.title}</h2>
+      <p class="text-gray-500">${messages.success.message}</p>
+      <button id="success-continue-btn" class="bg-purple-800 text-white py-2 px-6 rounded-lg mt-4">${messages.success.continue}</button>
     </section>
   `;
 }
